@@ -15,5 +15,5 @@
 如果你想运行这个项目，通常只需要先在 `configs.py` 中设置好 `.set` 文件路径和训练参数，然后执行 `python train_real_set.py` 即可。训练完成后，模型权重会保存在 `checkpoints/`，重构结果图会保存在 `outputs/reconstruction_train/`。
 
 改动：
-让 RunningTargetNormalizer 排除缺失通道
-在 dataset.py 里compute_channel_time_patch_targets() 之后、flatten 之前加了token标准化
+- 让 RunningTargetNormalizer 排除缺失通道
+- 在 dataset.py 里compute_channel_time_patch_targets() 之后、flatten 之前加了token标准化
