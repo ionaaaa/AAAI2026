@@ -13,3 +13,7 @@
 项目中的主要文件包括：`configs.py` 用于统一管理参数，`channel_config.py` 定义标准 64 通道模板，`preprocessing.py` 负责 EEG 预处理，`io_utils.py` 负责读取和切分 `.set` 数据，`dataset.py` 负责生成模型输入，`targets.py` 负责构造时频轨迹目标，`masking.py` 负责 token mask，`model.py` 定义 Transformer 模型，`losses.py` 定义重构损失，`trainer.py` 负责训练流程，`train_real_set.py` 作为整个项目的运行入口。
 
 如果你想运行这个项目，通常只需要先在 `configs.py` 中设置好 `.set` 文件路径和训练参数，然后执行 `python train_real_set.py` 即可。训练完成后，模型权重会保存在 `checkpoints/`，重构结果图会保存在 `outputs/reconstruction_train/`。
+
+改动：
+让 RunningTargetNormalizer 排除缺失通道
+在 dataset.py 里compute_channel_time_patch_targets() 之后、flatten 之前加了token标准化
