@@ -68,13 +68,13 @@ class EEGPretrainDataset(Dataset):
             eps=self.cfg.data.eps,
         )
 
-        # patches 标准化: [C, N, L]
-        patches = patches.astype(np.float32)
-
-        patch_mean = patches.mean(axis=-1, keepdims=True)
-        patch_std = patches.std(axis=-1, keepdims=True)
-
-        patches = (patches - patch_mean) / (patch_std + self.cfg.data.eps)
+        # # patches 标准化: [C, N, L]
+        # patches = patches.astype(np.float32)
+        #
+        # patch_mean = patches.mean(axis=-1, keepdims=True)
+        # patch_std = patches.std(axis=-1, keepdims=True)
+        #
+        # patches = (patches - patch_mean) / (patch_std + self.cfg.data.eps)
 
         # patches: [C, N, L]
         # targets: [C, N, F, K]

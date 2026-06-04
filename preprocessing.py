@@ -137,6 +137,34 @@ def _crop_or_pad(signal: np.ndarray, target_num_points: int):
     return np.concatenate([signal, pad], axis=1)
 
 
+def _zscore_valid_channels(
+        signal_64: np.ndarray,
+        channel_valid_mask: np.ndarray,
+        eps: float = 1e-6,
+):
+    """
+    对每个真实存在的通道单独做 z-score。
+
+    signal_64: [64, T]
+    channel_valid_mask: [64]
+    """
+    signal_64 = signal_64.copy().astype(np.float32)
+
+    valid_idx = channel_valid_mask > 0.5
+
+    if valid_idx.sum() == 0:
+        return signal_64
+
+    mean = signal_64[valid_idx].mean(axis=1, keepdims=True)
+    std = signal_64[valid_idx].std(axis=1, keepdims=True)
+
+    signal_64[valid_idx] = (signal_64[valid_idx] - mean) / (std + eps)
+
+    # 缺失通道保持 0
+    signal_64[~valid_idx] = 0.0
+
+    return signal_64.astype(np.float32)
+
 def preprocess_eeg(
     signal,
     channel_names,
@@ -217,6 +245,13 @@ def preprocess_eeg(
     # 6) 固定长度
     if target_num_points is not None:
         signal_64 = _crop_or_pad(signal_64, target_num_points)
+
+    # 7) 每个真实通道做 z-score 标准化
+    signal_64 = _zscore_valid_channels(
+        signal_64=signal_64,
+        channel_valid_mask=channel_valid_mask,
+        eps=1e-6,
+    )
 
     return signal_64.astype(np.float32), channel_valid_mask.astype(np.float32)
 
