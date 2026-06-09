@@ -3,22 +3,22 @@ from dataclasses import dataclass, field
 
 @dataclass
 class DataConfig:
-    """
-    数据相关配置。
-    """
 
-    # 你的 .set 文件路径。
-    # 可以是单个 .set 文件，也可以是多个 .set 文件。
+    # 数据相关配置。
+
     set_paths: list = field(default_factory=lambda: [
         "data/sub01_01_EC.set",
     ])
+
+    lance_path: str = "data/pretrain_processed.lance"
 
     # 是否把 MNE 读出来的 Volt 转成 microvolt。
     # MNE 读 EEG 通常单位是 Volt，数值很小，例如 1e-5。
     # 转成 uV 后更适合模型训练。
     convert_v_to_uv: bool = True
 
-    # 每个训练样本切多长，单位秒。
+
+    # 这里就是把原始很长时间的EEG，按照设定的clip_seconds进行切割，得到多个样本，单位秒。
     clip_seconds: float = 10.0
 
     # 连续 EEG 切样本时的步长，单位秒。
@@ -32,21 +32,21 @@ class DataConfig:
     # 固定标准通道数量。
     n_channels: int = 64
 
-    # 每个 token 对应多长 EEG，单位秒。
-    patch_seconds: float = 1.28
+    # 对于每个样本，还要进一步切割patch，这样才能输入到ViT，每个 token 对应多长 EEG，单位秒。
+    patch_seconds: float = 1.0
 
     # patch 滑动步长，单位秒。
     # 如果和 patch_seconds 相等，就是不重叠 patch。
-    patch_stride_seconds: float = 1.28
+    patch_stride_seconds: float = 1.0
 
     # 每个 patch 内部的 target 时间分辨率。
     # 例如 patch_seconds=1.28, target_frame_seconds=0.16
     # 则每个 patch 内有 8 个 target frame。
-    target_frame_seconds: float = 0.16
+    target_frame_seconds: float = 0.2
 
-    # STFT 参数。
+    # STFT 参数。计算频带轨迹，每次计算
     stft_window_seconds: float = 1.0
-    stft_hop_seconds: float = 0.16
+    stft_hop_seconds: float = 0.1
 
     # 频段定义。
     # 你也可以按自己任务改。
@@ -61,12 +61,16 @@ class DataConfig:
     eps: float = 1e-6
 
 
+
+
+
+
 @dataclass
 class MaskConfig:
     """
     mask 相关配置。
     """
-    mask_ratio: float = 0.5 # 0.4
+    mask_ratio: float = 0.5
     min_block_tokens: int = 4
     max_block_tokens: int = 32
 
@@ -89,15 +93,15 @@ class TrainConfig:
     训练相关配置。
     """
     seed: int = 42
-    device: str = "mps"
+    device: str = "cuda"
 
-    batch_size: int = 8
+    batch_size: int = 16
     num_workers: int = 0
 
     # 你现在希望训练 10 个 epoch。
-    num_epochs: int = 500
+    num_epochs: int = 100
 
-    lr: float = 1e-3 #1e-4
+    lr: float = 1e-3
     weight_decay: float = 1e-4
 
     print_every: int = 10
